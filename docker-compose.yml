@@ -1,14 +1,14 @@
 services:
  postgres:
-  container_name: postgres-sql-bsn
-  image: postgres
+  container_name: postgres-sql
+  image: postgres #The official PostgreSQL image from Docker Hub.
   environment:
    POSTGRES_USER: root
    POSTGRES_PASSWORD: password
-   PGDATA: /var/lib/postgresql/data
-   POSTGRES_DB: networkdb
+   PGDATA: /var/lib/postgresql/data #Specifies the directory where PostgreSQL will store its data.
+   POSTGRES_DB: networkdb #This is the name of the default database to be created in PostgreSQL as "networkdb".
   volumes:
-   - postgres:/data/postgres
+   - postgres:/data/postgres #This line mounts a volume named "postgres" into the container at the directory "/data/postgres". This is used to persist PostgreSQL data outside of the container.
   ports:
    - 5432:5432
   networks:
