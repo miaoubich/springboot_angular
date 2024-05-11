@@ -43,7 +43,7 @@ public class User implements UserDetails, Principal{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	private String firsname;
+	private String firstname;
 	private String lastname;
 	private LocalDate dateOfBirth;
 	@Column(unique = true)
@@ -104,7 +104,7 @@ public class User implements UserDetails, Principal{
 		return enabled;
 	}
 
-	private String fullName() {
-		return firsname + " " + lastname; 
+	public String getFullName() {
+		return firstname + " " + lastname; 
 	}
 }
