@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		var userRole = roleRepository.findByName("USER")
 				.orElseThrow(() -> new IllegalStateException("Role User wasn't initialized."));
 		var user = User.builder()
-				.firstname(request.getFirsname())
+				.firstname(request.getFirstname())
 				.lastname(request.getLastname())
 				.email(request.getEmail())
 				.password(passwordEncoder.encode(request.getPassword()))

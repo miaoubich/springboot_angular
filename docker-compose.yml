@@ -1,16 +1,15 @@
 services:
- postgres:
-  container_name: postgres-sql
-  image: postgres #The official PostgreSQL image from Docker Hub.
+ mysql:
+  container_name: mysql-sql
+  image: mysql:latest #The official MySQLSQL image from Docker Hub.
   environment:
-   POSTGRES_USER: root
-   POSTGRES_PASSWORD: password
-   PGDATA: /var/lib/postgresql/data #Specifies the directory where PostgreSQL will store its data.
-   POSTGRES_DB: networkdb #This is the name of the default database to be created in PostgreSQL as "networkdb".
+   MYSQL_ROOT_PASSWORD: password
+   #PGDATA: /var/lib/postgresql/data #Specifies the directory where PostgreSQL will store its data.
+   MYSQL_DATABASE: networkdb #This is the name of the default database to be created in PostgreSQL as "networkdb".
   volumes:
-   - postgres:/data/postgres #This line mounts a volume named "postgres" into the container at the directory "/data/postgres". This is used to persist PostgreSQL data outside of the container.
+   - mysql:/var/lib/mysql #This line mounts a volume named "postgres" into the container at the directory "/data/postgres". This is used to persist PostgreSQL data outside of the container.
   ports:
-   - 5432:5432
+   - 3307:3307
   networks:
    - spring-demo
   restart: unless-stopped
@@ -28,5 +27,5 @@ networks:
   driver: bridge
    
 volumes:
- postgres:
+ mysql:
   driver: local

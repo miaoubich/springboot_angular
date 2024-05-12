@@ -13,7 +13,7 @@ public class RegistrationRequest {
 
 	@NotEmpty(message = "Firstname is mandatory.")
 	@NotBlank(message = "Firstname is mandatory.")
-	private String firsname;
+	private String firstname;
 	@NotBlank(message = "Lastname is mandatory.")
 	@NotBlank(message = "Lastname is mandatory.")
 	private String lastname;
