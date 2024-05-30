@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	//When user send invalid data while registering a new user (ex. not providing firstname, or ....)
-	//This will catch the meesages from the validation used in the entity attributes
+	//This will catch the messages from the validation used in the entity attributes
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException exception){
 		Set<String> errors = new HashSet<>();

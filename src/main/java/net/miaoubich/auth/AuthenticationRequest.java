@@ -12,7 +12,7 @@ public class AuthenticationRequest {
 
 	@NotBlank(message = "Email is mandatory.")
 	@NotBlank(message = "Email is mandatory.")
-	@Email(message = "Email is not formatted.")
+	@Email(message = "Email is not valid.")
 	private String email;
 	@NotBlank(message = "Password is mandatory.")
 	@NotBlank(message = "Password is mandatory.")
