@@ -1,4 +1,4 @@
-package net.miaoubich.email;
+ package net.miaoubich.email;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -23,8 +23,9 @@ public class EmailService {
 	private final SpringTemplateEngine templateEngine;
 
 	@Async // because sending an email is a time consuming then we transform it to asynchronous	
-	public void sendEMail(String to, String username, EmailTemplateName emailTemplate, String confirmationUrl,
-			String activationCode, String subject) throws MessagingException {
+	public void sendEMail(String to, String username, 
+						  EmailTemplateName emailTemplate, String confirmationUrl,
+						  String activationCode, String subject) throws MessagingException {
 		String templateName;
 
 		if (emailTemplate == null) {
@@ -36,7 +37,7 @@ public class EmailService {
 		
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage,
-														 MimeMessageHelper.MULTIPART_MODE_MIXED,
+													     MimeMessageHelper.MULTIPART_MODE_MIXED,
 														 StandardCharsets.UTF_8.name());
 		
 		Map<String, Object> properties = new HashMap<>();

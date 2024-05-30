@@ -5,9 +5,9 @@ services:
   environment:
    MYSQL_ROOT_PASSWORD: password
    #PGDATA: /var/lib/postgresql/data #Specifies the directory where PostgreSQL will store its data.
-   MYSQL_DATABASE: networkdb #This is the name of the default database to be created in PostgreSQL as "networkdb".
+   MYSQL_DATABASE: networkdb #This is the name of the default database to be created in MySQL as "networkdb".
   volumes:
-   - mysql:/var/lib/mysql #This line mounts a volume named "postgres" into the container at the directory "/data/postgres". This is used to persist PostgreSQL data outside of the container.
+   - mysql:/var/lib/mysql #This line mounts a volume named "mysql" into the container at the directory "/var/lib/". This is used to persist PostgreSQL data outside of the container.
   ports:
    - 3307:3307
   networks:

@@ -2,13 +2,19 @@ package net.miaoubich.auth;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.miaoubich.email.EmailService;
@@ -16,6 +22,7 @@ import net.miaoubich.email.EmailTemplateName;
 import net.miaoubich.repository.RoleRepository;
 import net.miaoubich.repository.TokenRepository;
 import net.miaoubich.repository.UserRepository;
+import net.miaoubich.security.JwtService;
 import net.miaoubich.user.Token;
 import net.miaoubich.user.User;
 
@@ -25,10 +32,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final UserRepository UuerRepository;
+	private final UserRepository userRepository;
 	private final TokenRepository tokenRepository;
 	private final EmailService emailService;
-
+	private final AuthenticationManager authenticationManager;
+	private final JwtService jwtService;
+	
 	@Value("${application.mailing.frontend.activation-url}")
 	private String activationUrl;
 
@@ -43,8 +52,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				.password(passwordEncoder.encode(request.getPassword()))
 				.accountLocked(false)
 				.enabled(false)
-				.roles(List.of(userRole)).build();
-		UuerRepository.save(user);
+				.roles(List.of(userRole))
+				.build();
+		userRepository.save(user);
 
 		sendValidationEmail(user);
 	}
@@ -53,8 +63,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		String newToken = generateAndSaveActivationToken(user);
 
 		// send Email
-		emailService.sendEMail(user.getEmail(), user.getFullName(), EmailTemplateName.ACTIVATE_ACCOUNT, activationUrl,
-				newToken, "Account activation");
+		emailService.sendEMail(user.getEmail(), 
+				               user.getFullName(), 
+				               EmailTemplateName.ACTIVATE_ACCOUNT, 
+				               activationUrl,
+				               newToken, 
+				               "Account activation"
+				               );
 	}
 
 	private String generateAndSaveActivationToken(User user) {
@@ -83,6 +98,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public AuthenticationResponse authenticate(AuthenticationRequest request) {
+		Authentication auth = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(
+						request.getEmail(),
+						request.getPassword()));
+		var claims = new HashMap<String, Object>();
+		var user = ((User) auth.getPrincipal());
+		claims.put("fullname", user.getFullName());
+		var jwtToken = jwtService.generateToken(claims, user);
+		
+		return AuthenticationResponse.builder()
+									 .token(jwtToken)
+									 .build();
+	}
+
+//	@Transactional
+	@Override
+	public void activateAccount(String token) {
+		Token savedToken = tokenRepository.findByToken(token)
+						.orElseThrow(() -> new RuntimeException("Invalid token."));
+		if(LocalDateTime.now().isAfter((savedToken.getExpiredAt()))){
+			try {
+				sendValidationEmail(savedToken.getUser());
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+			throw new RuntimeException("Activation token has expired. "
+					+ "A new token has been sent to the same email address.");
+		}
+		var user = userRepository.findById(savedToken.getUser().getId())
+						.orElseThrow(()-> new UsernameNotFoundException("User not found."));
+		user.setEnabled(true);
+		userRepository.save(user);
+		savedToken.setValidatedAt(LocalDateTime.now());
+		tokenRepository.save(savedToken);
 	}
 
 }
